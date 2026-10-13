@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile</title>
+<meta name="description" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fog: #edf0f3;
+    --paper: #f8f9fb;
+    --ink: #0f1c2e;
+    --muted: #586477;
+    --rule: #cfd6e0;
+    --accent: #2d4bf0;
+    --tint: color-mix(in srgb, var(--accent) 14%, var(--paper));
+    --ok: #12805c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fog: #0f1c2e;
+      --paper: #15253b;
+      --ink: #e7ecf4;
+      --muted: #94a2b8;
+      --rule: #263a57;
+      --accent: #8fa3ff;
+      --tint: color-mix(in srgb, var(--accent) 22%, var(--paper));
+      --ok: #5fd3a6;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--fog);
+    color: var(--ink);
+    font: 400 16px/1.85 "IBM Plex Sans JP", system-ui, sans-serif;
+  }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- hero ---------- */
+  .hero { padding-block: 64px 40px; }
+  .wordmark {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 800;
+    font-size: clamp(52px, 14.5vw, 164px);
+    overflow-wrap: anywhere;
+    line-height: .86;
+    letter-spacing: -.045em;
+    margin: 0;
+  }
+  .wordmark .tld { color: var(--accent); font-weight: 500; letter-spacing: -.03em; }
+  .wordmark .dot { color: var(--muted); font-weight: 500; }
+  .tagline {
+    margin: 28px 0 0;
+    max-width: 34em;
+    font-size: clamp(17px, 2.2vw, 20px);
+    color: var(--muted);
+  }
+  .tagline b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- terminal ---------- */
+  .term {
+    margin-top: 48px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .term-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    padding: 12px 16px; border-bottom: 1px solid var(--rule);
+  }
+  .term-bar .label { color: var(--muted); font-size: 13px; margin-right: 6px; }
+  .qtype {
+    font: 500 13px "IBM Plex Mono", monospace;
+    color: var(--ink); background: transparent;
+    border: 1px solid var(--rule); border-radius: 6px;
+    padding: 4px 10px; cursor: pointer;
+  }
+  .qtype[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+  .term-body { padding: 18px 16px 20px; font-size: 14px; line-height: 1.75; min-height: 300px; }
+  .cmd { margin: 0 0 12px; }
+  .cmd .ps { color: var(--accent); }
+  .caret { display: inline-block; width: .6em; height: 1.1em; vertical-align: -.2em; background: var(--ink); margin-left: 2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .comment { color: var(--muted); }
+  .rr {
+    display: grid;
+    grid-template-columns: var(--name-w, 14ch) 3.5em 2em 4.5em 1fr;
+    gap: 0 10px;
+    opacity: 0;
+  }
+  .rr.on { opacity: 1; }
+  .rr .ttl, .rr .cls { color: var(--muted); }
+  .rr .type { color: var(--accent); font-weight: 500; }
+  .rr .val { word-break: break-word; }
+  .stats { margin-top: 12px; }
+  .stats .ok { color: var(--ok); }
+
+  /* ---------- sections ---------- */
+  .zone { padding-block: 56px 24px; }
+  .rec {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 24px;
+    padding: 36px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .rec-head .t {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 800; font-size: 44px; line-height: 1; letter-spacing: -.03em;
+    color: var(--accent);
+  }
+  .rec-head .h { margin-top: 10px; font-weight: 700; font-size: 16px; }
+  .rec-body { max-width: 40em; }
+  .rec-body p { margin: 0 0 14px; }
+  .rec-body p b { font-weight: 500; }
+  .setup-error { padding: 24px; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); }
+
+  .hinfo { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .hinfo li {
+    font: 500 14px "IBM Plex Mono", monospace;
+    padding: 6px 12px; background: var(--tint); border-radius: 6px;
+  }
+
+  .cnames { list-style: none; margin: 0; padding: 0; }
+  .cnames li { padding: 14px 0; border-bottom: 1px dashed var(--rule); }
+  .cnames li:first-child { padding-top: 0; }
+  .cnames .line { font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+  .cnames .name { font-weight: 500; font-size: 17px; }
+  .cnames .arrow { color: var(--muted); }
+  .cnames .desc { margin-top: 4px; color: var(--muted); font-size: 15px; }
+
+  footer { padding-block: 40px 56px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 720px) {
+    .hero { padding-block-start: 40px; }
+    .rr { grid-template-columns: 1fr; padding: 6px 0; border-bottom: 1px dashed var(--rule); }
+    .rr .name, .rr .ttl, .rr .cls { display: none; }
+    .rr .type { font-size: 12px; }
+    .rec { grid-template-columns: 1fr; gap: 12px; padding: 28px 0; }
+    .rec-head { display: flex; align-items: baseline; gap: 12px; }
+    .rec-head .t { font-size: 32px; }
+    .rec-head .h { margin: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .caret { animation: none; }
+  }
+</style>
+<!-- 内容は profile.js に書きます。このファイルは編集しなくても使えます。 -->
+<script src="profile.js"></script>
+</head>
+<body>
+  <header class="hero wrap">
+    <h1 class="wordmark" id="wordmark"></h1>
+    <p class="tagline" id="tagline"></p>
+    <div class="term mono" id="term-box">
+      <div class="term-bar" role="group" aria-label="レコードタイプを選んで問い合わせ" id="term-bar">
+        <span class="label">query</span>
+      </div>
+      <div class="term-body" id="term" aria-live="polite">
+        <noscript><p>下の各セクションに同じ内容があります。</p></noscript>
+      </div>
+    </div>
+  </header>
+  <main class="zone wrap" id="zone"></main>
+  <footer class="wrap mono" id="footer"></footer>
+
+<script>
+(function () {
+  "use strict";
+  var P = window.PROFILE;
+  var zone = document.getElementById("zone");
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  if (!P || !P.domain) {
+    var err = el("div", "setup-error", "profile.js が読み込めませんでした。index.html と同じフォルダに profile.js があるか、書式に誤りがないか確認してください。");
+    zone.appendChild(err);
+    document.getElementById("term-box").hidden = true;
+    return;
+  }
+
+  /* ---- 文章の簡易記法: **強調** と [文字](URL) ---- */
+  function rich(target, text) {
+    var re = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g, last = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > last) target.appendChild(document.createTextNode(text.slice(last, m.index)));
+      if (m[1] != null) target.appendChild(el("b", null, m[1]));
+      else target.appendChild(link(m[2], m[3]));
+      last = re.lastIndex;
+    }
+    if (last < text.length) target.appendChild(document.createTextNode(text.slice(last)));
+    return target;
+  }
+  function safeUrl(u) { return /^(https?:|mailto:|\/|#)/i.test(u) ? u : "#"; }
+  function link(text, url, cls) {
+    var a = el("a", cls, text); a.href = safeUrl(url);
+    if (/^https?:/i.test(url)) { a.target = "_blank"; a.rel = "noopener"; }
+    return a;
+  }
+  function stripUrl(u) { return String(u).replace(/^https?:\/\//, "").replace(/\/$/, ""); }
+  function plain(t) { return String(t).replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1"); }
+
+  /* ---- head ---- */
+  var domain = String(P.domain).replace(/\.$/, "");
+  document.title = domain;
+  var meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute("content", P.description || "");
+  if (P.accent) {
+    var s = document.createElement("style");
+    s.textContent = ":root{--accent:" + (P.accent.light || "#2d4bf0") + "}" +
+      "@media (prefers-color-scheme: dark){:root{--accent:" + (P.accent.dark || P.accent.light || "#8fa3ff") + "}}";
+    document.head.appendChild(s);
+  }
+
+  /* ---- hero ---- */
+  var wm = document.getElementById("wordmark"), dot = domain.lastIndexOf(".");
+  if (dot > 0) {
+    wm.appendChild(document.createTextNode(domain.slice(0, dot)));
+    wm.appendChild(el("span", "dot", "."));
+    wm.appendChild(el("span", "tld", domain.slice(dot + 1)));
+  } else wm.textContent = domain;
+  if (P.tagline) rich(document.getElementById("tagline"), P.tagline);
+
+  /* ---- sections + records ---- */
+  var records = (P.txt || []).map(function (t) { return ["TXT", JSON.stringify(String(t))]; });
+  (P.sections || []).forEach(function (sec, i) {
+    var id = "sec-" + i;
+    var section = el("section", "rec"); section.setAttribute("aria-labelledby", id);
+    var head = el("div", "rec-head");
+    head.appendChild(el("div", "t mono", sec.type || "TXT"));
+    var h = el("div", "h", sec.title || ""); h.id = id; head.appendChild(h);
+    var body = el("div", "rec-body");
+    section.appendChild(head); section.appendChild(body);
+
+    if (sec.kind === "tags") {
+      var ul = el("ul", "hinfo");
+      (sec.items || []).forEach(function (t) { ul.appendChild(el("li", null, t)); });
+      body.appendChild(ul);
+      var items = (sec.items || []).map(function (t) { return JSON.stringify(String(t)); });
+      for (var k = 0; k < items.length; k += 3) records.push([sec.type || "HINFO", items.slice(k, k + 3).join(" ")]);
+    } else if (sec.kind === "links") {
+      var list = el("ul", "cnames");
+      (sec.items || []).forEach(function (it) {
+        var li = el("li"), line = el("div", "line mono");
+        line.appendChild(link(it.name, it.url, "name"));
+        line.appendChild(el("span", "arrow", stripUrl(it.url)));
+        li.appendChild(line);
+        if (it.description) li.appendChild(rich(el("div", "desc"), it.description));
+        list.appendChild(li);
+        records.push([sec.type || "CNAME", stripUrl(it.url), String(it.name).toLowerCase().replace(/[^a-z0-9-]/g, "-") + "." + domain + "."]);
+      });
+      body.appendChild(list);
+    } else {
+      (sec.paragraphs || []).forEach(function (p) { body.appendChild(rich(el("p"), p)); });
+    }
+    zone.appendChild(section);
+  });
+
+  var footer = document.getElementById("footer");
+  footer.textContent = ";; " + domain + " \u2014 \u00a9 " + new Date().getFullYear() + " " + (P.name || "");
+
+  /* ---- terminal ---- */
+  var term = document.getElementById("term"), bar = document.getElementById("term-bar");
+  document.getElementById("term-box").setAttribute("aria-label", domain + " への問い合わせ結果");
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var timers = [];
+  function clear() { timers.forEach(clearTimeout); timers = []; term.textContent = ""; }
+  function later(fn, ms) { timers.push(setTimeout(fn, reduce ? 0 : ms)); }
+
+  var types = ["ANY"];
+  records.forEach(function (r) { if (types.indexOf(r[0]) < 0) types.push(r[0]); });
+  var btns = types.map(function (t, i) {
+    var b = el("button", "qtype", t); b.type = "button"; b.dataset.type = t;
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    bar.appendChild(b); return b;
+  });
+  var nameWidth = Math.max.apply(null, records.map(function (r) { return (r[2] || domain + ".").length; }).concat([domain.length + 1]));
+  term.style.setProperty("--name-w", (nameWidth + 1) + "ch");
+
+  function run(type) {
+    clear();
+    var cmdText = "dig " + domain + " " + type;
+    var cmd = el("p", "cmd"); cmd.appendChild(el("span", "ps", "$ "));
+    var typed = el("span"); cmd.appendChild(typed);
+    var caret = el("span", "caret"); cmd.appendChild(caret);
+    term.appendChild(cmd);
+    var i = 0;
+    (function tick() {
+      if (reduce) { typed.textContent = cmdText; return answer(); }
+      typed.textContent = cmdText.slice(0, ++i);
+      if (i < cmdText.length) later(tick, 28); else later(answer, 160);
+    })();
+    function answer() {
+      caret.remove();
+      var rows = records.filter(function (r) { return type === "ANY" || r[0] === type; });
+      term.appendChild(el("div", "comment", ";; ANSWER SECTION:"));
+      rows.forEach(function (r, n) {
+        var row = el("div", "rr");
+        row.appendChild(el("span", "name", r[2] || domain + "."));
+        row.appendChild(el("span", "ttl", "3600"));
+        row.appendChild(el("span", "cls", "IN"));
+        row.appendChild(el("span", "type", r[0]));
+        row.appendChild(el("span", "val", r[1]));
+        term.appendChild(row);
+        later(function () { row.classList.add("on"); }, 60 * n);
+      });
+      later(function () {
+        var s = el("div", "stats comment");
+        s.appendChild(document.createTextNode(";; status: "));
+        s.appendChild(el("span", "ok", "NOERROR"));
+        s.appendChild(document.createTextNode(", answers: " + rows.length + ", query time: " + (8 + Math.floor(Math.random() * 14)) + " msec"));
+        term.appendChild(s);
+      }, 60 * rows.length + 40);
+    }
+  }
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      btns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      run(b.dataset.type);
+    });
+  });
+  run("ANY");
+})();
+</script>
+</body>
+</html>
